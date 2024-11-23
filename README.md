@@ -1,75 +1,63 @@
-# Django E-Commerce Platform
+# Django E-commerce Project
 
-## Overview
-A comprehensive e-commerce platform built with Django, offering robust features for online shopping.
+A modern e-commerce web application built with Django, featuring a responsive design and comprehensive shopping functionality.
 
-## Key Features
-- User Authentication & Profiles
-- Product Catalog with Categories
-- Shopping Cart Management
-- Order Processing
-- Secure Checkout
-- Responsive Design
+## Features
 
-## Technology Stack
-- Backend: Django 5.1.3
-- Database: PostgreSQL
-- Frontend: HTML, CSS, JavaScript
-- Payment Integration: Stripe
-- Authentication: Django Built-in + Custom User Model
+- Product browsing and searching
+- Shopping cart management
+- User authentication and profiles
+- Wishlist functionality
+- Order processing
+- Admin interface for product management
 
-## Setup Instructions
+## Tech Stack
 
-### Prerequisites
-- Python 3.9+
-- pip
-- virtualenv
+- Django 5.1.3
+- Django REST Framework
+- Bootstrap 5
+- SQLite Database
+- WhiteNoise for static files
 
-### Installation
-1. Clone the repository
-2. Create virtual environment
+## Setup
+
+1. Clone the repository:
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+git clone https://github.com/Tornado-6/django-ecommerce.git
+cd django-ecommerce
 ```
 
-3. Install dependencies
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Database Setup
+3. Run migrations:
 ```bash
-python manage.py makemigrations
 python manage.py migrate
 ```
 
-5. Create Superuser
+4. Create a superuser:
 ```bash
 python manage.py createsuperuser
 ```
 
-6. Run Development Server
+5. Run the development server:
 ```bash
 python manage.py runserver
 ```
 
-## Environment Variables
-Create a `.env` file with:
-- `SECRET_KEY`
-- `DEBUG`
-- `DATABASE_URL`
-- `STRIPE_SECRET_KEY`
+## Project Structure
 
-## Deployment
-- Configured for Heroku/Railway
-- Uses `gunicorn` and `whitenoise`
+- `products/`: Product management app
+- `cart/`: Shopping cart functionality
+- `orders/`: Order processing
+- `users/`: User authentication and profiles
 
 ## Contributing
-1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push and create Pull Request
+
+Feel free to submit issues and pull requests.
 
 ## License
-MIT License
+
+This project is licensed under the MIT License.
