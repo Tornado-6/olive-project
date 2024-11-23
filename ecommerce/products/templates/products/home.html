@@ -16,7 +16,7 @@
                         All Products
                     </a>
                     {% for category in categories %}
-                    <a href="{% url 'products:category' category.id %}" 
+                    <a href="{% url 'products:home' %}?category={{ category.id }}" 
                        class="list-group-item list-group-item-action {% if selected_category == category %}active{% endif %}">
                         {{ category.name }}
                         <span class="badge bg-secondary float-end">{{ category.products.count }}</span>
@@ -171,18 +171,18 @@
                                     <i class="bi bi-cart-plus"></i> Add to Cart
                                 </button>
                             </form>
-                            <button type="button" class="btn btn-outline-primary" onclick="addToWishlist()">
+                            <button id="modalWishlistBtn" onclick="addToWishlist()" class="btn btn-outline-primary">
                                 <i class="bi bi-heart"></i> Add to Wishlist
                             </button>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('facebook')">
-                                    <i class="bi bi-facebook"></i>
+                                <button class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('facebook')">
+                                    <i class="bi bi-facebook"></i> Share
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('twitter')">
-                                    <i class="bi bi-twitter"></i>
+                                <button class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('twitter')">
+                                    <i class="bi bi-twitter"></i> Tweet
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('pinterest')">
-                                    <i class="bi bi-pinterest"></i>
+                                <button class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('pinterest')">
+                                    <i class="bi bi-pinterest"></i> Pin
                                 </button>
                             </div>
                         </div>
@@ -193,13 +193,42 @@
     </div>
 </div>
 
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
+let currentProductId = null;
+
+function showToast(message) {
+    const toastEl = document.getElementById('toast');
+    const toast = new bootstrap.Toast(toastEl);
+    toastEl.querySelector('.toast-body').textContent = message;
+    toast.show();
+}
+
 function openQuickView(productId) {
-    fetch(`/api/products/${productId}/`)
-        .then(response => response.json())
+    currentProductId = productId;  // Store the current product ID
+    const modal = new bootstrap.Modal(document.getElementById('quickViewModal'));
+    
+    fetch(`/products/api/products/${productId}/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(product => {
             document.getElementById('modalProductName').textContent = product.name;
             document.getElementById('modalProductDescription').textContent = product.description;
@@ -209,6 +238,22 @@ function openQuickView(productId) {
             
             // Update form action
             document.getElementById('modalAddToCartForm').action = `/cart/add/${product.id}/`;
+            
+            // Check if product is in wishlist
+            fetch(`/users/api/wishlist/check/${productId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    const wishlistBtn = document.getElementById('modalWishlistBtn');
+                    if (data.in_wishlist) {
+                        wishlistBtn.innerHTML = '<i class="bi bi-heart-fill text-danger"></i> Remove from Wishlist';
+                        wishlistBtn.classList.remove('btn-outline-primary');
+                        wishlistBtn.classList.add('btn-outline-danger');
+                    } else {
+                        wishlistBtn.innerHTML = '<i class="bi bi-heart"></i> Add to Wishlist';
+                        wishlistBtn.classList.remove('btn-outline-danger');
+                        wishlistBtn.classList.add('btn-outline-primary');
+                    }
+                });
             
             // Update gallery
             const galleryHtml = product.images && product.images.length > 0 ? 
@@ -225,16 +270,48 @@ function openQuickView(productId) {
             document.querySelector('#productGallery .carousel-inner').innerHTML = galleryHtml;
             
             // Show modal
-            new bootstrap.Modal(document.getElementById('quickViewModal')).show();
+            modal.show();
         })
         .catch(error => {
             console.error('Error loading product:', error);
+            showToast('Error loading product details');
         });
 }
 
 function addToWishlist() {
-    // Wishlist functionality will be implemented later
-    alert('Wishlist feature coming soon!');
+    const productId = currentProductId;
+    const wishlistBtn = document.getElementById('modalWishlistBtn');
+    const isRemoving = wishlistBtn.classList.contains('btn-outline-danger');
+    
+    const url = isRemoving ? 
+        `/users/api/wishlist/remove/${productId}/` : 
+        `/users/api/wishlist/add/${productId}/`;
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (isRemoving) {
+                wishlistBtn.innerHTML = '<i class="bi bi-heart"></i> Add to Wishlist';
+                wishlistBtn.classList.remove('btn-outline-danger');
+                wishlistBtn.classList.add('btn-outline-primary');
+            } else {
+                wishlistBtn.innerHTML = '<i class="bi bi-heart-fill text-danger"></i> Remove from Wishlist';
+                wishlistBtn.classList.remove('btn-outline-primary');
+                wishlistBtn.classList.add('btn-outline-danger');
+            }
+            showToast(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating wishlist');
+    });
 }
 
 function shareProduct(platform) {
