@@ -1,0 +1,196 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}">My Orders</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Order #{{ order.id }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Order Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Order Items</h4>
+                </div>
+                <div class="card-body">
+                    {% for item in order.items.all %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="flex-shrink-0">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 100px;">
+                            {% else %}
+                                <div class="img-thumbnail bg-light d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                    <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-1">{{ item.product.name }}</h5>
+                            <p class="mb-1">
+                                <small class="text-muted">Quantity: {{ item.quantity }}</small>
+                            </p>
+                            <p class="mb-0">Price: ${{ item.price }}</p>
+                        </div>
+                        <div class="text-end">
+                            <h5>${{ item.total_price }}</h5>
+                        </div>
+                    </div>
+                    {% if not forloop.last %}
+                    <hr>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <span>Total</span>
+                        <strong>${{ order.total_amount }}</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Order Timeline</h4>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <i class="bi bi-circle-fill text-success"></i>
+                            <div class="timeline-content">
+                                <h6>Order Placed</h6>
+                                <p class="mb-0">{{ order.created_at|date:"F j, Y, g:i a" }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if order.status != 'pending' %}
+                        <div class="timeline-item">
+                            <i class="bi bi-circle-fill text-primary"></i>
+                            <div class="timeline-content">
+                                <h6>Processing</h6>
+                                <p class="mb-0">Your order is being processed</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.status == 'shipped' or order.status == 'delivered' %}
+                        <div class="timeline-item">
+                            <i class="bi bi-circle-fill text-info"></i>
+                            <div class="timeline-content">
+                                <h6>Shipped</h6>
+                                <p class="mb-0">
+                                    Your order has been shipped
+                                    {% if order.tracking_number %}
+                                    <br>
+                                    <small>Tracking Number: {{ order.tracking_number }}</small>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.status == 'delivered' %}
+                        <div class="timeline-item">
+                            <i class="bi bi-circle-fill text-success"></i>
+                            <div class="timeline-content">
+                                <h6>Delivered</h6>
+                                <p class="mb-0">Your order has been delivered</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Order Status -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Order Status</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-{{ order.status|lower }}-subtle text-{{ order.status|lower }} mb-0">
+                        <h5 class="alert-heading">{{ order.status|title }}</h5>
+                        <p class="mb-0">Order placed on {{ order.created_at|date:"F j, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0">Shipping Information</h4>
+                </div>
+                <div class="card-body">
+                    <h6>Shipping Address</h6>
+                    <p>{{ order.shipping_address }}</p>
+                    
+                    <h6>Billing Address</h6>
+                    <p class="mb-0">{{ order.billing_address }}</p>
+                </div>
+            </div>
+            
+            <!-- Need Help? -->
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Need Help?</h4>
+                </div>
+                <div class="card-body">
+                    <p>If you have any questions about your order, please contact our customer support:</p>
+                    <div class="d-grid">
+                        <a href="#" class="btn btn-outline-primary">Contact Support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-item i {
+    position: absolute;
+    left: 0;
+    top: 4px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 24px;
+    height: calc(100% + 20px);
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-content {
+    padding-bottom: 10px;
+}
+</style>
+{% endblock %}
