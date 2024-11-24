@@ -1,10 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .models import Product, Category
-from .serializers import ProductSerializer
+from rest_framework import status
+from .models import Product, Category, Review
+from .serializers import ProductSerializer, ReviewSerializer
 
 # Create your views here.
 
@@ -49,6 +51,8 @@ def home(request):
         products = products.order_by('name')
     elif sort == 'name_desc':
         products = products.order_by('-name')
+    elif sort == 'rating_desc':
+        products = sorted(products, key=lambda p: p.average_rating, reverse=True)
     
     # Pagination
     paginator = Paginator(products, 9)  # Show 9 products per page
@@ -68,10 +72,44 @@ def category_view(request, category_id):
     return home(request)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def product_detail_api(request, product_id):
-    try:
-        product = get_object_or_404(Product, id=product_id)
-        serializer = ProductSerializer(product)
+    """Get product details including reviews"""
+    product = get_object_or_404(Product, id=product_id)
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_review(request, product_id):
+    """Add a review to a product"""
+    product = get_object_or_404(Product, id=product_id)
+    
+    # Check if user already reviewed this product
+    if Review.objects.filter(product=product, user=request.user).exists():
+        return Response(
+            {'error': 'You have already reviewed this product'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    serializer = ReviewSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user, product=product)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def manage_review(request, review_id):
+    """Update or delete a review"""
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    
+    if request.method == 'DELETE':
+        review.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    serializer = ReviewSerializer(review, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
         return Response(serializer.data)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

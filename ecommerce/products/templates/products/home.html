@@ -160,11 +160,18 @@
                     </div>
                     <div class="col-md-6">
                         <h3 id="modalProductName"></h3>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="me-2">
+                                <span id="modalProductRating"></span>
+                                <span class="text-muted">(<span id="modalProductTotalReviews"></span> reviews)</span>
+                            </div>
+                        </div>
                         <p id="modalProductDescription"></p>
                         <p class="h4 text-primary" id="modalProductPrice"></p>
                         <p><strong>Category:</strong> <span id="modalProductCategory"></span></p>
                         <p><strong>Stock:</strong> <span id="modalProductStock"></span></p>
                         <div class="d-grid gap-2">
+                            {% if user.is_authenticated %}
                             <form id="modalAddToCartForm" method="post" class="d-grid">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-primary">
@@ -174,6 +181,14 @@
                             <button id="modalWishlistBtn" onclick="addToWishlist()" class="btn btn-outline-primary">
                                 <i class="bi bi-heart"></i> Add to Wishlist
                             </button>
+                            {% else %}
+                            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-primary">
+                                <i class="bi bi-cart-plus"></i> Login to Add to Cart
+                            </a>
+                            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-outline-primary">
+                                <i class="bi bi-heart"></i> Login to Add to Wishlist
+                            </a>
+                            {% endif %}
                             <div class="d-flex gap-2">
                                 <button class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('facebook')">
                                     <i class="bi bi-facebook"></i> Share
@@ -185,6 +200,51 @@
                                     <i class="bi bi-pinterest"></i> Pin
                                 </button>
                             </div>
+                        </div>
+                        
+                        <!-- Reviews Section -->
+                        <div class="mt-4">
+                            <h4>Reviews</h4>
+                            <div id="modalReviewsList" class="mt-3">
+                                <!-- Reviews will be loaded here -->
+                            </div>
+                            
+                            {% if user.is_authenticated %}
+                            <div class="mt-4">
+                                <h5>Write a Review</h5>
+                                <form id="reviewForm" onsubmit="submitReview(event)" class="needs-validation" novalidate>
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating</label>
+                                        <div class="rating">
+                                            <input type="radio" name="rating" value="5" id="rating5" required>
+                                            <label for="rating5">★</label>
+                                            <input type="radio" name="rating" value="4" id="rating4">
+                                            <label for="rating4">★</label>
+                                            <input type="radio" name="rating" value="3" id="rating3">
+                                            <label for="rating3">★</label>
+                                            <input type="radio" name="rating" value="2" id="rating2">
+                                            <label for="rating2">★</label>
+                                            <input type="radio" name="rating" value="1" id="rating1">
+                                            <label for="rating1">★</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reviewTitle" class="form-label">Title</label>
+                                        <input type="text" class="form-control" id="reviewTitle" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="reviewComment" class="form-label">Comment</label>
+                                        <textarea class="form-control" id="reviewComment" rows="3" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info mt-4">
+                                Please <a href="{% url 'users:login' %}?next={{ request.path }}">login</a> to write a review.
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -205,6 +265,49 @@
     </div>
 </div>
 
+<style>
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 6px;
+    float: left;
+    border: none;
+}
+
+.rating > input {
+    display: none;
+}
+
+.rating > label {
+    font-size: 1.5rem;
+    color: #ddd;
+    cursor: pointer;
+}
+
+.rating > label:before {
+    content: '★';
+}
+
+.rating > input:checked ~ label,
+.rating > input:checked ~ label ~ label {
+    color: #ffd700;
+}
+
+.rating > input:not(:checked) ~ label:hover,
+.rating > input:not(:checked) ~ label:hover ~ label {
+    color: #ffd700;
+}
+
+.review-stars {
+    color: #ffd700;
+}
+
+.review-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+</style>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -219,7 +322,7 @@ function showToast(message) {
 }
 
 function openQuickView(productId) {
-    currentProductId = productId;  // Store the current product ID
+    currentProductId = productId;
     const modal = new bootstrap.Modal(document.getElementById('quickViewModal'));
     
     fetch(`/products/api/products/${productId}/`)
@@ -236,7 +339,37 @@ function openQuickView(productId) {
             document.getElementById('modalProductCategory').textContent = product.category;
             document.getElementById('modalProductStock').textContent = product.stock;
             
-            // Update form action
+            // Update rating and reviews
+            const stars = '★'.repeat(Math.round(product.average_rating)) + '☆'.repeat(5 - Math.round(product.average_rating));
+            document.getElementById('modalProductRating').innerHTML = `<span class="review-stars">${stars}</span> ${product.average_rating}`;
+            document.getElementById('modalProductTotalReviews').textContent = product.total_reviews;
+            
+            // Update reviews list
+            const reviewsList = document.getElementById('modalReviewsList');
+            if (product.reviews && product.reviews.length > 0) {
+                reviewsList.innerHTML = product.reviews.map(review => `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="card-subtitle">${review.title}</h6>
+                                <span class="review-date">${review.created_at}</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                            </div>
+                            <p class="card-text">${review.comment}</p>
+                            <footer class="text-muted">
+                                - ${review.user}
+                            </footer>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                reviewsList.innerHTML = '<p class="text-muted">No reviews yet. Be the first to review this product!</p>';
+            }
+            
+            // Update form action for authenticated users
+            {% if user.is_authenticated %}
             document.getElementById('modalAddToCartForm').action = `/cart/add/${product.id}/`;
             
             // Check if product is in wishlist
@@ -253,7 +386,11 @@ function openQuickView(productId) {
                         wishlistBtn.classList.remove('btn-outline-danger');
                         wishlistBtn.classList.add('btn-outline-primary');
                     }
+                })
+                .catch(error => {
+                    console.error('Error checking wishlist:', error);
                 });
+            {% endif %}
             
             // Update gallery
             const galleryHtml = product.images && product.images.length > 0 ? 
@@ -269,13 +406,62 @@ function openQuickView(productId) {
                 </div>`;
             document.querySelector('#productGallery .carousel-inner').innerHTML = galleryHtml;
             
+            // Reset review form if it exists
+            const reviewForm = document.getElementById('reviewForm');
+            if (reviewForm) {
+                reviewForm.reset();
+            }
+            
             // Show modal
             modal.show();
         })
         .catch(error => {
-            console.error('Error loading product:', error);
+            console.error('Error:', error);
             showToast('Error loading product details');
         });
+}
+
+function submitReview(event) {
+    event.preventDefault();
+    
+    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+    const title = document.getElementById('reviewTitle').value;
+    const comment = document.getElementById('reviewComment').value;
+    
+    if (!rating || !title || !comment) {
+        showToast('Please fill in all fields');
+        return;
+    }
+    
+    fetch(`/products/api/products/${currentProductId}/reviews/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify({
+            rating: parseInt(rating),
+            title: title,
+            comment: comment
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Error submitting review');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        showToast('Review submitted successfully');
+        // Refresh the modal content to show the new review
+        openQuickView(currentProductId);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast(error.message);
+    });
 }
 
 function addToWishlist() {

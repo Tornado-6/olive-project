@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 
@@ -49,6 +51,16 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
+    @property
+    def average_rating(self):
+        if self.reviews.exists():
+            return round(self.reviews.aggregate(models.Avg('rating'))['rating__avg'], 1)
+        return 0
+    
+    @property
+    def total_reviews(self):
+        return self.reviews.count()
+
     class Meta:
         ordering = ['-created_at']
         indexes = [
@@ -56,3 +68,19 @@ class Product(models.Model):
             models.Index(fields=['name']),
             models.Index(fields=['price']),
         ]
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
+    user = models.ForeignKey(get_user_model(), related_name='reviews', on_delete=models.CASCADE)
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    title = models.CharField(max_length=100)
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ('product', 'user')  # One review per product per user
+    
+    def __str__(self):
+        return f'{self.user.username} - {self.product.name} ({self.rating}★)'
