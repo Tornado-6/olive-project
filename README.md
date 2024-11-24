@@ -1,63 +1,90 @@
-# Django E-commerce Project
+# Olive Store
 
-A modern e-commerce web application built with Django, featuring a responsive design and comprehensive shopping functionality.
+A modern e-commerce platform built with Django for Olive, featuring a responsive design and comprehensive product management system.
 
 ## Features
 
-- Product browsing and searching
-- Shopping cart management
+- Product catalog with categories
 - User authentication and profiles
-- Wishlist functionality
+- Shopping cart functionality
+- Wishlist management
 - Order processing
-- Admin interface for product management
+- Product reviews and ratings
+- Responsive design with Bootstrap 5
+- RESTful API endpoints
 
 ## Tech Stack
 
 - Django 5.1.3
-- Django REST Framework
+- Python 3.8+
 - Bootstrap 5
-- SQLite Database
-- WhiteNoise for static files
+- SQLite (Development)
+- Django REST Framework
+- WhiteNoise
+- django-cors-headers
 
-## Setup
+## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/Tornado-6/django-ecommerce.git
-cd django-ecommerce
+git clone https://github.com/yourusername/olive-project.git
+cd olive-project
 ```
 
-2. Install dependencies:
+2. Create a virtual environment and activate it:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run migrations:
+4. Apply migrations:
 ```bash
 python manage.py migrate
 ```
 
-4. Create a superuser:
+5. Create a superuser:
 ```bash
 python manage.py createsuperuser
 ```
 
-5. Run the development server:
+6. Run the development server:
 ```bash
 python manage.py runserver
 ```
 
+Visit http://127.0.0.1:8000/ to see the application.
+
 ## Project Structure
 
-- `products/`: Product management app
-- `cart/`: Shopping cart functionality
-- `orders/`: Order processing
-- `users/`: User authentication and profiles
+```
+olive/
+├── manage.py
+├── olive/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── products/
+├── cart/
+├── orders/
+├── users/
+└── media/
+```
 
 ## Contributing
 
-Feel free to submit issues and pull requests.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.

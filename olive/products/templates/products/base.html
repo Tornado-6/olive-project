@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - Olive Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .cart-icon {
+            font-size: 1.5rem;
+            position: relative;
+        }
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 0.75rem;
+            min-width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #dc3545;
+            color: white;
+            padding: 0 4px;
+        }
+        .nav-link {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .nav-link:hover {
+            color: #0056b3 !important;
+        }
+        .navbar-nav {
+            align-items: center;
+        }
+        button.nav-link {
+            font-weight: 600;
+            background: none;
+            border: none;
+            padding: 0.5rem 1rem;
+            color: rgba(255, 255, 255, 0.55);
+        }
+        button.nav-link:hover {
+            color: rgba(255, 255, 255, 0.75);
+        }
+        #miniCart {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 300px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            padding: 10px;
+        }
+
+        .mini-cart-items {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mini-cart-item {
+            display: flex;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .mini-cart-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .mini-cart-details {
+            flex-grow: 1;
+        }
+
+        .mini-cart-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .mini-cart-total {
+            padding: 10px;
+            border-top: 1px solid #eee;
+            font-weight: bold;
+            text-align: right;
+            margin: 10px -10px;
+            background: #f8f9fa;
+        }
+
+        .mini-cart-buttons {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            margin: 0 -10px -10px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        .mini-cart-buttons .btn {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .cart-hover-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .cart-icon-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-bottom: 0;
+        }
+        
+        .pagination .page-item {
+            margin: 2px;
+        }
+        
+        .pagination .page-link {
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+        }
+        
+        @media (max-width: 576px) {
+            .pagination {
+                font-size: 0.875rem;
+            }
+            .pagination .page-link {
+                min-width: 35px;
+                height: 35px;
+                padding: 0 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'products:home' %}">Olive Store</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'products:home' %}">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:wishlist' %}">
+                                <i class="bi bi-heart"></i> Wishlist
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'users:profile' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'orders:order_list' %}">Order History</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'users:logout' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-box-arrow-right"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:login' %}">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'users:register' %}">
+                                <i class="bi bi-person-plus"></i> Register
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item ms-2 position-relative">
+                        <div class="cart-hover-container" onmouseenter="showMiniCart()" onmouseleave="hideMiniCart()">
+                            <a href="{% url 'cart:cart_detail' %}" class="nav-link">
+                                <div class="cart-icon-wrapper">
+                                    <i class="bi bi-cart3"></i>
+                                    <span id="cartBadge" class="cart-badge">{{ cart.item_count }}</span>
+                                </div>
+                            </a>
+                            <div id="miniCart" onmouseenter="clearMiniCartTimeout()" onmouseleave="hideMiniCart()">
+                                <div class="mini-cart-items">
+                                    <!-- Items will be loaded here -->
+                                    <div class="text-center py-3">Loading...</div>
+                                </div>
+                                <div class="mini-cart-total">
+                                    Total: <span class="total-amount">$0.00</span>
+                                </div>
+                                <div class="mini-cart-buttons">
+                                    <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-primary">View Cart</a>
+                                    <a href="{% url 'checkout:checkout' %}" class="btn btn-primary">Checkout</a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Recently Viewed Products -->
+    <div id="recentlyViewed">
+        <div class="p-3">
+            <h6 class="mb-3">Recently Viewed</h6>
+            <div id="recentlyViewedItems">
+                <!-- Items will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial cart items count
+            loadCartItems();
+        });
+
+        let miniCartTimeout;
+        
+        function showMiniCart() {
+            clearTimeout(miniCartTimeout);
+            const miniCart = document.getElementById('miniCart');
+            miniCart.style.display = 'block';
+            loadCartItems();
+        }
+        
+        function clearMiniCartTimeout() {
+            clearTimeout(miniCartTimeout);
+        }
+        
+        function hideMiniCart() {
+            miniCartTimeout = setTimeout(() => {
+                const miniCart = document.getElementById('miniCart');
+                miniCart.style.display = 'none';
+            }, 500);
+        }
+        
+        function loadCartItems() {
+            const miniCart = document.getElementById('miniCart');
+            const itemsContainer = miniCart.querySelector('.mini-cart-items');
+            
+            fetch('/cart/api/items/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        itemsContainer.innerHTML = data.items.map(item => `
+                            <div class="mini-cart-item">
+                                <img src="${item.image_url || '/static/images/no-image.png'}" 
+                                     alt="${item.name}" 
+                                     class="mini-cart-image">
+                                <div class="mini-cart-details">
+                                    <div class="mini-cart-name">${item.name}</div>
+                                    <div class="mini-cart-price">$${item.price}</div>
+                                    <div class="mini-cart-quantity">Qty: ${item.quantity}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                        miniCart.querySelector('.total-amount').textContent = `$${data.total}`;
+                        document.getElementById('cartBadge').textContent = data.item_count;
+                    } else {
+                        itemsContainer.innerHTML = '<div class="text-center py-3">Your cart is empty</div>';
+                        miniCart.querySelector('.total-amount').textContent = '$0.00';
+                        document.getElementById('cartBadge').textContent = '0';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching cart items:', error);
+                    itemsContainer.innerHTML = '<div class="text-center py-3 text-danger">Error loading cart items</div>';
+                });
+        }
+        
+        function updateCartBadge(count) {
+            const badge = document.getElementById('cartBadge');
+            if (badge) {
+                badge.textContent = count;
+            }
+        }
+        
+        function toggleWishlist(productId, element) {
+            if (!element.classList.contains('active')) {
+                fetch(`/api/wishlist/add/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        element.classList.add('active');
+                        showToast('Product added to wishlist!');
+                    }
+                });
+            } else {
+                fetch(`/api/wishlist/remove/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        element.classList.remove('active');
+                        showToast('Product removed from wishlist');
+                    }
+                });
+            }
+        }
+        
+        // Recently viewed products
+        const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+        
+        function addToRecentlyViewed(product) {
+            const existing = recentlyViewed.findIndex(p => p.id === product.id);
+            if (existing !== -1) {
+                recentlyViewed.splice(existing, 1);
+            }
+            recentlyViewed.unshift(product);
+            if (recentlyViewed.length > 5) {
+                recentlyViewed.pop();
+            }
+            localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+            updateRecentlyViewedDisplay();
+        }
+        
+        function updateRecentlyViewedDisplay() {
+            if (recentlyViewed.length === 0) return;
+            
+            const container = document.getElementById('recentlyViewedItems');
+            container.innerHTML = recentlyViewed.map(product => `
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body">
+                            <h6 class="card-title">${product.name}</h6>
+                            <p class="card-text">$${product.price}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('recentlyViewed').style.display = 'block';
+        }
+        
+        // Show recently viewed after a delay
+        setTimeout(updateRecentlyViewedDisplay, 2000);
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white bg-primary border-0 position-fixed bottom-0 end-0 m-3';
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
