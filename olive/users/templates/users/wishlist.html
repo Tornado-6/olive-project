@@ -9,7 +9,7 @@
     {% if wishlist.products.exists %}
         <div class="row row-cols-1 row-cols-md-4 g-4">
             {% for product in wishlist.products.all %}
-                <div class="col">
+                <div class="col product-card" data-product-id="{{ product.id }}">
                     <div class="card h-100">
                         {% if product.image %}
                             <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
@@ -30,8 +30,8 @@
                                         <i class="bi bi-cart-plus"></i> Add to Cart
                                     </button>
                                 </form>
-                                <button onclick="toggleWishlist('{{ product.id }}', this)" 
-                                        class="btn btn-outline-danger active">
+                                <button onclick="removeFromWishlist('{{ product.id }}', this)" 
+                                        class="btn btn-outline-danger">
                                     <i class="bi bi-heart-fill"></i> Remove from Wishlist
                                 </button>
                             </div>
@@ -51,4 +51,59 @@
         </div>
     {% endif %}
 </div>
+
+<!-- Toast for notifications -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="wishlistToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showToast(message) {
+    const toastEl = document.getElementById('wishlistToast');
+    const toast = new bootstrap.Toast(toastEl);
+    toastEl.querySelector('.toast-body').textContent = message;
+    toast.show();
+}
+
+function removeFromWishlist(productId, button) {
+    fetch(`/users/api/wishlist/remove/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Find and remove the product card from the DOM
+            const productCard = button.closest('.product-card');
+            productCard.remove();
+            
+            // Check if there are any products left
+            const remainingProducts = document.querySelectorAll('.product-card');
+            if (remainingProducts.length === 0) {
+                // If no products left, refresh the page to show empty state
+                window.location.reload();
+            }
+            
+            showToast('Product removed from wishlist');
+        } else {
+            showToast('Error removing product from wishlist');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error removing product from wishlist');
+    });
+}
+</script>
 {% endblock %}

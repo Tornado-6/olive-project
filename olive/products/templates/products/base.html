@@ -3,426 +3,743 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %} - Olive Store</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <title>{% block title %}Olive World{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        .cart-icon {
-            font-size: 1.5rem;
-            position: relative;
-        }
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            font-size: 0.75rem;
-            min-width: 18px;
-            height: 18px;
-            line-height: 18px;
-            text-align: center;
-            border-radius: 50%;
-            background-color: #dc3545;
-            color: white;
-            padding: 0 4px;
-        }
-        .nav-link {
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        .nav-link:hover {
-            color: #0056b3 !important;
-        }
-        .navbar-nav {
-            align-items: center;
-        }
-        button.nav-link {
-            font-weight: 600;
-            background: none;
-            border: none;
-            padding: 0.5rem 1rem;
-            color: rgba(255, 255, 255, 0.55);
-        }
-        button.nav-link:hover {
-            color: rgba(255, 255, 255, 0.75);
-        }
-        #miniCart {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 300px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            z-index: 1000;
-            display: none;
-            padding: 10px;
+        :root {
+            --olive-primary: #8ebd2f;
+            --olive-dark: #2c2c2c;
+            --olive-gray: #8b827d;
+            --olive-bg: #f2eeeb;
+            --olive-white: #fff;
         }
 
-        .mini-cart-items {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--olive-dark);
+            line-height: 1.7;
+            background-color: var(--olive-white);
+        }
+
+        /* Header Styles */
+        .top-bar {
+            background: var(--olive-primary);
+            color: var(--olive-white);
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .navbar {
+            background: var(--olive-white);
+            padding: 20px 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--olive-dark);
+        }
+
+        .nav-link {
+            color: var(--olive-dark);
+            font-weight: 500;
+            padding: 8px 16px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--olive-primary);
+        }
+
+        /* Navbar Enhancements */
+        .navbar .nav-link {
+            position: relative;
+            padding: 0.5rem 1rem;
+        }
+
+        .navbar .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--olive-primary);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .navbar .nav-link:hover::after {
+            width: 80%;
+        }
+
+        /* Button Styles */
+        .btn-olive {
+            background-color: var(--olive-primary);
+            color: var(--olive-white);
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 500;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-olive:hover {
+            background-color: var(--olive-dark);
+            color: var(--olive-white);
+            transform: translateY(-2px);
+        }
+
+        .btn-olive-outline {
+            color: var(--olive-primary);
+            background-color: transparent;
+            border-color: var(--olive-primary);
+            transition: all 0.3s ease;
+        }
+
+        .btn-olive-outline:hover {
+            color: var(--olive-white);
+            background-color: var(--olive-primary);
+            border-color: var(--olive-primary);
+        }
+
+        /* Custom Olive Buttons */
+        .btn-olive {
+            background-color: var(--olive-primary);
+            color: var(--olive-white);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-olive:hover, .btn-olive:focus, .btn-olive:active {
+            background-color: var(--olive-dark) !important;
+            color: var(--olive-white) !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-olive {
+            color: var(--olive-primary);
+            border-color: var(--olive-primary);
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-olive:hover, .btn-outline-olive:focus, .btn-outline-olive:active {
+            background-color: var(--olive-primary) !important;
+            border-color: var(--olive-primary) !important;
+            color: var(--olive-white) !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-olive.btn-sm, .btn-outline-olive.btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.875rem;
+        }
+
+        /* Hover Effects */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Star Rating Styles */
+        .rating-stars {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-stars input[type="radio"] {
+            display: none;
+        }
+
+        .rating-stars label {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #ddd;
+        }
+
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label,
+        .rating-stars input[type="radio"]:checked ~ label {
+            color: var(--olive-primary);
+        }
+
+        .rating-stars label:hover i,
+        .rating-stars label:hover ~ label i,
+        .rating-stars input[type="radio"]:checked ~ label i {
+            transform: scale(1.1);
+        }
+
+        .rating-stars i {
+            transition: all 0.2s ease;
+        }
+
+        /* Card Styles */
+        .product-card {
+            background: var(--olive-white);
+            border-radius: 25px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .product-card .card-body {
+            padding: 25px;
+        }
+
+        .product-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--olive-dark);
             margin-bottom: 10px;
         }
 
-        .mini-cart-item {
-            display: flex;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            align-items: center;
+        .product-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--olive-primary);
         }
 
-        .mini-cart-image {
+        /* Cart Badge */
+        .badge.bg-olive {
+            background-color: var(--olive-primary) !important;
+            color: var(--olive-white);
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+
+        /* Mini Cart Dropdown */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        .dropdown-header {
+            font-weight: 600;
+            color: var(--olive-dark);
+            padding: 0.5rem 1rem;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: var(--olive-dark);
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(142, 189, 47, 0.1);
+            color: var(--olive-primary);
+        }
+
+        .dropdown-item.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Cart Item Styles */
+        .cart-item-image {
             width: 50px;
             height: 50px;
             object-fit: cover;
-            margin-right: 10px;
+            border-radius: 8px;
         }
 
-        .mini-cart-details {
-            flex-grow: 1;
-        }
-
-        .mini-cart-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .mini-cart-total {
-            padding: 10px;
-            border-top: 1px solid #eee;
-            font-weight: bold;
-            text-align: right;
-            margin: 10px -10px;
-            background: #f8f9fa;
-        }
-
-        .mini-cart-buttons {
-            display: flex;
-            gap: 10px;
-            padding: 10px;
-            margin: 0 -10px -10px;
-            background: #f8f9fa;
-            border-top: 1px solid #eee;
-        }
-
-        .mini-cart-buttons .btn {
-            flex: 1;
-            padding: 8px;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 4px;
+        .cart-item-title {
+            font-size: 0.875rem;
             font-weight: 500;
+            margin-bottom: 0.25rem;
         }
 
-        .cart-hover-container {
-            position: relative;
-            display: inline-block;
+        .cart-item-price {
+            font-size: 0.75rem;
+            color: var(--olive-gray);
         }
 
-        .cart-icon-wrapper {
-            position: relative;
-            display: inline-block;
+        .cart-remove-btn {
+            padding: 0.25rem;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .cart-remove-btn:hover {
+            opacity: 1;
+        }
+
+        /* Footer Styles */
+        footer {
+            background: var(--olive-bg);
+            padding: 80px 0 30px;
+            margin-top: 100px;
+        }
+
+        .footer-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--olive-dark);
+            margin-bottom: 25px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: var(--olive-gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--olive-primary);
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--olive-white);
+            color: var(--olive-dark);
+            border-radius: 50%;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--olive-primary);
+            color: var(--olive-white);
+            transform: translateY(-3px);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--olive-bg);
+            padding: 100px 0;
+            margin-bottom: 80px;
+            border-bottom-left-radius: 80px;
+            border-bottom-right-radius: 80px;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--olive-dark);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--olive-gray);
+            margin-bottom: 30px;
         }
 
         /* Pagination Styles */
         .pagination {
             flex-wrap: wrap;
-            gap: 0.25rem;
+            gap: 5px;
             margin-bottom: 0;
         }
-        
+
         .pagination .page-item {
-            margin: 2px;
+            margin: 0 2px;
         }
-        
+
         .pagination .page-link {
-            min-width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 8px;
+            color: var(--olive-dark);
+            border-radius: 8px;
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
         }
-        
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--olive-primary);
+            border-color: var(--olive-primary);
+            color: var(--olive-white);
+        }
+
+        .pagination .page-link:hover {
+            background-color: var(--olive-bg);
+            color: var(--olive-primary);
+            border-color: var(--olive-primary);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: var(--olive-gray);
+            pointer-events: none;
+            background-color: var(--olive-white);
+            border-color: #dee2e6;
+        }
+
         @media (max-width: 576px) {
             .pagination {
-                font-size: 0.875rem;
+                justify-content: center;
             }
             .pagination .page-link {
-                min-width: 35px;
-                height: 35px;
-                padding: 0 6px;
+                padding: 6px 12px;
+                font-size: 14px;
             }
+        }
+
+        /* Override Bootstrap Default Colors */
+        .btn-primary {
+            background-color: var(--olive-primary);
+            border-color: var(--olive-primary);
+            color: var(--olive-white);
+        }
+
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+            background-color: var(--olive-dark) !important;
+            border-color: var(--olive-dark) !important;
+            color: var(--olive-white) !important;
+        }
+
+        .btn-outline-primary {
+            color: var(--olive-primary);
+            border-color: var(--olive-primary);
+        }
+
+        .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+            background-color: var(--olive-primary) !important;
+            border-color: var(--olive-primary) !important;
+            color: var(--olive-white) !important;
+        }
+
+        .text-primary {
+            color: var(--olive-primary) !important;
+        }
+
+        .bg-primary {
+            background-color: var(--olive-primary) !important;
+        }
+
+        .border-primary {
+            border-color: var(--olive-primary) !important;
+        }
+
+        /* Form Controls */
+        .form-control:focus {
+            border-color: var(--olive-primary);
+            box-shadow: 0 0 0 0.25rem rgba(142, 189, 47, 0.25);
+        }
+
+        /* Links */
+        a {
+            color: var(--olive-primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--olive-dark);
+        }
+
+        /* Dropdown */
+        .dropdown-item.active, .dropdown-item:active {
+            background-color: var(--olive-primary);
+        }
+
+        /* Modal */
+        .modal-header .btn-close:focus {
+            box-shadow: 0 0 0 0.25rem rgba(142, 189, 47, 0.25);
+        }
+
+        /* List Group */
+        .list-group-item.active {
+            background-color: var(--olive-primary);
+            border-color: var(--olive-primary);
+        }
+
+        /* Progress Bars */
+        .progress-bar {
+            background-color: var(--olive-primary);
+        }
+
+        /* Alerts */
+        .alert-primary {
+            color: var(--olive-dark);
+            background-color: rgba(142, 189, 47, 0.15);
+            border-color: rgba(142, 189, 47, 0.4);
+        }
+
+        /* Badges */
+        .badge.bg-primary {
+            background-color: var(--olive-primary) !important;
+        }
+
+        /* Stars and Ratings */
+        .bi-star-fill {
+            color: var(--olive-primary);
+        }
+
+        /* Custom Switch */
+        .form-check-input:checked {
+            background-color: var(--olive-primary);
+            border-color: var(--olive-primary);
+        }
+
+        .form-check-input:focus {
+            border-color: var(--olive-primary);
+            box-shadow: 0 0 0 0.25rem rgba(142, 189, 47, 0.25);
+        }
+
+        /* Toast */
+        .toast {
+            border-color: rgba(142, 189, 47, 0.15);
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <!-- Top Bar -->
+    <div class="top-bar">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'products:home' %}">Olive Store</a>
+            <div class="row">
+                <div class="col-md-6">
+                    <i class="bi bi-telephone-fill me-2"></i> +91 123 456 7890
+                    <i class="bi bi-envelope-fill ms-4 me-2"></i> info@oliveworld.com
+                </div>
+                <div class="col-md-6 text-end">
+                    <i class="bi bi-truck me-2"></i> Free shipping on orders over ₹999
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">Olive World</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products:home' %}">
-                            <i class="bi bi-house"></i> Home
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Mini Cart -->
+                    <div class="dropdown">
+                        <a href="#" class="nav-link position-relative" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-cart3 fs-5"></i>
+                            {% if cart_items %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-olive">
+                                {{ cart_items|length }}
+                                <span class="visually-hidden">items in cart</span>
+                            </span>
+                            {% endif %}
                         </a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'users:wishlist' %}">
-                                <i class="bi bi-heart"></i> Wishlist
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person"></i> {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{% url 'users:profile' %}">Profile</a></li>
-                                <li><a class="dropdown-item" href="{% url 'orders:order_list' %}">Order History</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="post" action="{% url 'users:logout' %}" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="dropdown-item">
-                                            <i class="bi bi-box-arrow-right"></i> Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'users:login' %}">
-                                <i class="bi bi-box-arrow-in-right"></i> Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'users:register' %}">
-                                <i class="bi bi-person-plus"></i> Register
-                            </a>
-                        </li>
-                    {% endif %}
-                    <li class="nav-item ms-2 position-relative">
-                        <div class="cart-hover-container" onmouseenter="showMiniCart()" onmouseleave="hideMiniCart()">
-                            <a href="{% url 'cart:cart_detail' %}" class="nav-link">
-                                <div class="cart-icon-wrapper">
-                                    <i class="bi bi-cart3"></i>
-                                    <span id="cartBadge" class="cart-badge">{{ cart.item_count }}</span>
+                        <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 300px;">
+                            <h6 class="dropdown-header border-bottom pb-2">Shopping Cart</h6>
+                            {% if cart_items %}
+                                {% for item in cart_items %}
+                                <div class="d-flex align-items-center gap-3 py-2 border-bottom">
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="rounded cart-item-image">
+                                    <div class="flex-grow-1">
+                                        <h6 class="cart-item-title mb-0">{{ item.product.name }}</h6>
+                                        <small class="text-muted cart-item-price">{{ item.quantity }} × ₹{{ item.product.price }}</small>
+                                    </div>
+                                    <button onclick="removeFromCart('{{ item.id }}', this)" 
+                                            class="btn btn-sm text-danger cart-remove-btn">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </div>
-                            </a>
-                            <div id="miniCart" onmouseenter="clearMiniCartTimeout()" onmouseleave="hideMiniCart()">
-                                <div class="mini-cart-items">
-                                    <!-- Items will be loaded here -->
-                                    <div class="text-center py-3">Loading...</div>
+                                {% endfor %}
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <h6 class="mb-0">Total: ₹{{ cart.total_price }}</h6>
+                                    <a href="{% url 'cart:cart_detail' %}" class="btn btn-olive btn-sm">View Cart</a>
                                 </div>
-                                <div class="mini-cart-total">
-                                    Total: <span class="total-amount">$0.00</span>
-                                </div>
-                                <div class="mini-cart-buttons">
-                                    <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-primary">View Cart</a>
-                                    <a href="{% url 'checkout:checkout' %}" class="btn btn-primary">Checkout</a>
-                                </div>
-                            </div>
+                            {% else %}
+                                <p class="text-muted mb-0">Your cart is empty</p>
+                            {% endif %}
                         </div>
-                    </li>
-                </ul>
+                    </div>
+
+                    <!-- User Actions -->
+                    {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <a href="#" class="nav-link" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Welcome, {{ user.username }}!</h6></li>
+                            <li><a class="dropdown-item" href="{% url 'users:profile' %}">
+                                <i class="bi bi-person me-2"></i>Profile
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'users:wishlist' %}">
+                                <i class="bi bi-heart me-2"></i>Wishlist
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'users:logout' %}" class="dropdown-item p-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'users:login' %}" class="btn btn-outline-olive btn-sm">Login</a>
+                        <a href="{% url 'users:register' %}" class="btn btn-olive btn-sm">Register</a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container">
+    <!-- Main Content -->
+    <div class="container my-4">
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endif %}
-
-        {% block content %}
-        {% endblock %}
+        
+        {% block content %}{% endblock %}
     </div>
 
-    <!-- Recently Viewed Products -->
-    <div id="recentlyViewed">
-        <div class="p-3">
-            <h6 class="mb-3">Recently Viewed</h6>
-            <div id="recentlyViewedItems">
-                <!-- Items will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load initial cart items count
-            loadCartItems();
-        });
-
-        let miniCartTimeout;
-        
-        function showMiniCart() {
-            clearTimeout(miniCartTimeout);
-            const miniCart = document.getElementById('miniCart');
-            miniCart.style.display = 'block';
-            loadCartItems();
-        }
-        
-        function clearMiniCartTimeout() {
-            clearTimeout(miniCartTimeout);
-        }
-        
-        function hideMiniCart() {
-            miniCartTimeout = setTimeout(() => {
-                const miniCart = document.getElementById('miniCart');
-                miniCart.style.display = 'none';
-            }, 500);
-        }
-        
-        function loadCartItems() {
-            const miniCart = document.getElementById('miniCart');
-            const itemsContainer = miniCart.querySelector('.mini-cart-items');
-            
-            fetch('/cart/api/items/')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.items && data.items.length > 0) {
-                        itemsContainer.innerHTML = data.items.map(item => `
-                            <div class="mini-cart-item">
-                                <img src="${item.image_url || '/static/images/no-image.png'}" 
-                                     alt="${item.name}" 
-                                     class="mini-cart-image">
-                                <div class="mini-cart-details">
-                                    <div class="mini-cart-name">${item.name}</div>
-                                    <div class="mini-cart-price">$${item.price}</div>
-                                    <div class="mini-cart-quantity">Qty: ${item.quantity}</div>
-                                </div>
-                            </div>
-                        `).join('');
-                        
-                        miniCart.querySelector('.total-amount').textContent = `$${data.total}`;
-                        document.getElementById('cartBadge').textContent = data.item_count;
-                    } else {
-                        itemsContainer.innerHTML = '<div class="text-center py-3">Your cart is empty</div>';
-                        miniCart.querySelector('.total-amount').textContent = '$0.00';
-                        document.getElementById('cartBadge').textContent = '0';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching cart items:', error);
-                    itemsContainer.innerHTML = '<div class="text-center py-3 text-danger">Error loading cart items</div>';
-                });
-        }
-        
-        function updateCartBadge(count) {
-            const badge = document.getElementById('cartBadge');
-            if (badge) {
-                badge.textContent = count;
-            }
-        }
-        
-        function toggleWishlist(productId, element) {
-            if (!element.classList.contains('active')) {
-                fetch(`/api/wishlist/add/${productId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        element.classList.add('active');
-                        showToast('Product added to wishlist!');
-                    }
-                });
-            } else {
-                fetch(`/api/wishlist/remove/${productId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        element.classList.remove('active');
-                        showToast('Product removed from wishlist');
-                    }
-                });
-            }
-        }
-        
-        // Recently viewed products
-        const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
-        
-        function addToRecentlyViewed(product) {
-            const existing = recentlyViewed.findIndex(p => p.id === product.id);
-            if (existing !== -1) {
-                recentlyViewed.splice(existing, 1);
-            }
-            recentlyViewed.unshift(product);
-            if (recentlyViewed.length > 5) {
-                recentlyViewed.pop();
-            }
-            localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
-            updateRecentlyViewedDisplay();
-        }
-        
-        function updateRecentlyViewedDisplay() {
-            if (recentlyViewed.length === 0) return;
-            
-            const container = document.getElementById('recentlyViewedItems');
-            container.innerHTML = recentlyViewed.map(product => `
-                <div class="col">
-                    <div class="card h-100">
-                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
-                        <div class="card-body">
-                            <h6 class="card-title">${product.name}</h6>
-                            <p class="card-text">$${product.price}</p>
-                        </div>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">About Us</h5>
+                    <p class="text-muted">Olive World is your one-stop destination for premium kitchen and home organization products.</p>
+                    <div class="social-links mt-4">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
                     </div>
                 </div>
-            `).join('');
-            
-            document.getElementById('recentlyViewed').style.display = 'block';
-        }
-        
-        // Show recently viewed after a delay
-        setTimeout(updateRecentlyViewedDisplay, 2000);
-        
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast align-items-center text-white bg-primary border-0 position-fixed bottom-0 end-0 m-3';
-            toast.setAttribute('role', 'alert');
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="/products/">Products</a></li>
+                        <li><a href="/about/">About Us</a></li>
+                        <li><a href="/contact/">Contact</a></li>
+                        <li><a href="/privacy/">Privacy Policy</a></li>
+                    </ul>
                 </div>
-            `;
-            document.body.appendChild(toast);
-            const bsToast = new bootstrap.Toast(toast);
-            bsToast.show();
-            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">Categories</h5>
+                    <ul class="footer-links">
+                        <li><a href="/products/category/kitchen/">Kitchen Storage</a></li>
+                        <li><a href="/products/category/bathroom/">Bathroom Organization</a></li>
+                        <li><a href="/products/category/living/">Living Room</a></li>
+                        <li><a href="/products/category/bedroom/">Bedroom</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 class="footer-title">Contact Info</h5>
+                    <ul class="footer-links">
+                        <li><i class="bi bi-geo-alt me-2"></i> 123 Main Street, City, State</li>
+                        <li><i class="bi bi-telephone me-2"></i> +91 123 456 7890</li>
+                        <li><i class="bi bi-envelope me-2"></i> info@oliveworld.com</li>
+                        <li><i class="bi bi-clock me-2"></i> Mon - Sat: 9:00 AM - 6:00 PM</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <p class="text-muted mb-0"> 2024 Olive World. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function removeFromCart(itemId, button) {
+            fetch(`/cart/remove/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the item from the minicart
+                    const cartItem = button.closest('.d-flex');
+                    cartItem.remove();
+                    
+                    // Update the cart count badge
+                    const cartBadge = document.querySelector('.badge.bg-olive');
+                    if (data.cart_count > 0) {
+                        if (cartBadge) {
+                            cartBadge.textContent = data.cart_count;
+                        } else {
+                            const cartIcon = document.querySelector('.bi-cart3').parentElement;
+                            const newBadge = document.createElement('span');
+                            newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-olive';
+                            newBadge.textContent = data.cart_count;
+                            cartIcon.appendChild(newBadge);
+                        }
+                    } else {
+                        if (cartBadge) {
+                            cartBadge.remove();
+                        }
+                        // If no items left, update minicart content
+                        const dropdownMenu = button.closest('.dropdown-menu');
+                        dropdownMenu.innerHTML = `
+                            <h6 class="dropdown-header border-bottom pb-2">Shopping Cart</h6>
+                            <div class="text-center py-3">
+                                <i class="bi bi-cart3 fs-4 text-muted"></i>
+                                <p class="text-muted mb-0">Your cart is empty</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    alert('Error removing item from cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error removing item from cart');
+            });
         }
     </script>
     {% block extra_js %}{% endblock %}

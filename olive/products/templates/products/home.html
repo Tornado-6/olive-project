@@ -49,7 +49,7 @@
                                 <option value="name_desc" {% if request.GET.sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                        <button type="submit" class="btn btn-olive w-100">Apply Filters</button>
                     </form>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                 <div class="card-body">
                     <form method="get" class="d-flex gap-2">
                         <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ request.GET.search }}">
-                        <button type="submit" class="btn btn-primary">Search</button>
+                        <button type="submit" class="btn btn-olive">Search</button>
                     </form>
                 </div>
             </div>
@@ -92,12 +92,12 @@
                             </p>
                         </div>
                         <div class="card-footer d-flex justify-content-between align-items-center">
-                            <button onclick="openQuickView('{{ product.id }}')" class="btn btn-outline-primary btn-sm">
+                            <button onclick="openQuickView('{{ product.id }}')" class="btn btn-olive-outline btn-sm">
                                 <i class="bi bi-eye"></i> Quick View
                             </button>
                             <form method="post" action="{% url 'cart:add_to_cart' product.id %}" class="d-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-primary btn-sm">
+                                <button type="submit" class="btn btn-olive btn-sm">
                                     <i class="bi bi-cart-plus"></i> Add to Cart
                                 </button>
                             </form>
@@ -109,23 +109,59 @@
 
             <!-- Pagination -->
             {% if products.paginator.num_pages > 1 %}
-            <nav class="mt-4">
+            <nav class="mt-4" aria-label="Product pagination">
                 <ul class="pagination justify-content-center">
                     {% if products.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Previous</a>
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&laquo;</span>
                     </li>
                     {% endif %}
 
-                    {% for num in products.paginator.page_range %}
-                    <li class="page-item {% if products.number == num %}active{% endif %}">
-                        <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+                    {% if products.number > 3 %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">1</a>
                     </li>
+                    {% if products.number > 4 %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if num > products.number|add:"-3" and num < products.number|add:"3" %}
+                        <li class="page-item {% if products.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
                     {% endfor %}
+
+                    {% if products.number < products.paginator.num_pages|add:"-2" %}
+                    {% if products.number < products.paginator.num_pages|add:"-3" %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ products.paginator.num_pages }}</a>
+                    </li>
+                    {% endif %}
 
                     {% if products.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Next</a>
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&raquo;</span>
                     </li>
                     {% endif %}
                 </ul>
@@ -174,29 +210,29 @@
                             {% if user.is_authenticated %}
                             <form id="modalAddToCartForm" method="post" class="d-grid">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-olive">
                                     <i class="bi bi-cart-plus"></i> Add to Cart
                                 </button>
                             </form>
-                            <button id="modalWishlistBtn" onclick="addToWishlist()" class="btn btn-outline-primary">
+                            <button id="modalWishlistBtn" onclick="addToWishlist()" class="btn btn-outline-olive">
                                 <i class="bi bi-heart"></i> Add to Wishlist
                             </button>
                             {% else %}
-                            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-primary">
+                            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-olive">
                                 <i class="bi bi-cart-plus"></i> Login to Add to Cart
                             </a>
-                            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-outline-primary">
+                            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-outline-olive">
                                 <i class="bi bi-heart"></i> Login to Add to Wishlist
                             </a>
                             {% endif %}
                             <div class="d-flex gap-2">
-                                <button class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('facebook')">
+                                <button class="btn btn-outline-olive flex-grow-1" onclick="shareProduct('facebook')">
                                     <i class="bi bi-facebook"></i> Share
                                 </button>
-                                <button class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('twitter')">
+                                <button class="btn btn-outline-olive flex-grow-1" onclick="shareProduct('twitter')">
                                     <i class="bi bi-twitter"></i> Tweet
                                 </button>
-                                <button class="btn btn-outline-secondary flex-grow-1" onclick="shareProduct('pinterest')">
+                                <button class="btn btn-outline-olive flex-grow-1" onclick="shareProduct('pinterest')">
                                     <i class="bi bi-pinterest"></i> Pin
                                 </button>
                             </div>
@@ -212,21 +248,21 @@
                             {% if user.is_authenticated %}
                             <div class="mt-4">
                                 <h5>Write a Review</h5>
-                                <form id="reviewForm" onsubmit="submitReview(event)" class="needs-validation" novalidate>
+                                <form id="reviewForm" onsubmit="submitReview(event)">
                                     {% csrf_token %}
                                     <div class="mb-3">
                                         <label class="form-label">Rating</label>
-                                        <div class="rating">
-                                            <input type="radio" name="rating" value="5" id="rating5" required>
-                                            <label for="rating5">★</label>
-                                            <input type="radio" name="rating" value="4" id="rating4">
-                                            <label for="rating4">★</label>
-                                            <input type="radio" name="rating" value="3" id="rating3">
-                                            <label for="rating3">★</label>
-                                            <input type="radio" name="rating" value="2" id="rating2">
-                                            <label for="rating2">★</label>
-                                            <input type="radio" name="rating" value="1" id="rating1">
-                                            <label for="rating1">★</label>
+                                        <div class="rating-stars">
+                                            <input type="radio" name="rating" value="5" id="star5" required>
+                                            <label for="star5" title="5 stars"><i class="bi bi-star"></i></label>
+                                            <input type="radio" name="rating" value="4" id="star4">
+                                            <label for="star4" title="4 stars"><i class="bi bi-star"></i></label>
+                                            <input type="radio" name="rating" value="3" id="star3">
+                                            <label for="star3" title="3 stars"><i class="bi bi-star"></i></label>
+                                            <input type="radio" name="rating" value="2" id="star2">
+                                            <label for="star2" title="2 stars"><i class="bi bi-star"></i></label>
+                                            <input type="radio" name="rating" value="1" id="star1">
+                                            <label for="star1" title="1 star"><i class="bi bi-star"></i></label>
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -237,7 +273,7 @@
                                         <label for="reviewComment" class="form-label">Comment</label>
                                         <textarea class="form-control" id="reviewComment" rows="3" required></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                                    <button type="submit" class="btn btn-olive">Submit Review</button>
                                 </form>
                             </div>
                             {% else %}
@@ -266,36 +302,49 @@
 </div>
 
 <style>
-.rating {
+.rating-stars {
     display: flex;
     flex-direction: row-reverse;
     gap: 6px;
     float: left;
     border: none;
+    margin-bottom: 1rem;
 }
 
-.rating > input {
+.rating-stars > input {
     display: none;
 }
 
-.rating > label {
+.rating-stars > label {
     font-size: 1.5rem;
     color: #ddd;
     cursor: pointer;
+    transition: color 0.2s ease;
 }
 
-.rating > label:before {
-    content: '★';
+.rating-stars > label i {
+    pointer-events: none;
 }
 
-.rating > input:checked ~ label,
-.rating > input:checked ~ label ~ label {
+.rating-stars > label i:before {
+    content: "\F588";  /* Bootstrap icon code for empty star */
+}
+
+.rating-stars > input:checked ~ label i:before,
+.rating-stars > input:checked ~ label ~ label i:before,
+.rating-stars > input:not(:checked) ~ label:hover i:before,
+.rating-stars > input:not(:checked) ~ label:hover ~ label i:before {
+    content: "\F586";  /* Bootstrap icon code for filled star */
+}
+
+.rating-stars > input:checked ~ label,
+.rating-stars > input:checked ~ label ~ label {
     color: #ffd700;
 }
 
-.rating > input:not(:checked) ~ label:hover,
-.rating > input:not(:checked) ~ label:hover ~ label {
-    color: #ffd700;
+.rating-stars > input:not(:checked) ~ label:hover,
+.rating-stars > input:not(:checked) ~ label:hover ~ label {
+    color: #ffed4a;
 }
 
 .review-stars {
@@ -392,12 +441,12 @@ function openQuickView(productId) {
                     if (wishlistBtn) {
                         if (data.in_wishlist) {
                             wishlistBtn.innerHTML = '<i class="bi bi-heart-fill text-danger"></i> Remove from Wishlist';
-                            wishlistBtn.classList.remove('btn-outline-primary');
+                            wishlistBtn.classList.remove('btn-outline-olive');
                             wishlistBtn.classList.add('btn-outline-danger');
                         } else {
                             wishlistBtn.innerHTML = '<i class="bi bi-heart"></i> Add to Wishlist';
                             wishlistBtn.classList.remove('btn-outline-danger');
-                            wishlistBtn.classList.add('btn-outline-primary');
+                            wishlistBtn.classList.add('btn-outline-olive');
                         }
                     }
                 })
@@ -449,6 +498,9 @@ function submitReview(event) {
         return;
     }
     
+    // Force 5-star rating
+    const ratingValue = 5;
+    
     fetch(`/api/products/${currentProductId}/reviews/`, {
         method: 'POST',
         headers: {
@@ -458,7 +510,7 @@ function submitReview(event) {
         body: JSON.stringify({
             title: title,
             comment: comment,
-            rating: parseInt(rating)
+            rating: ratingValue
         })
     })
     .then(response => {
@@ -501,10 +553,10 @@ function addToWishlist() {
             if (isRemoving) {
                 wishlistBtn.innerHTML = '<i class="bi bi-heart"></i> Add to Wishlist';
                 wishlistBtn.classList.remove('btn-outline-danger');
-                wishlistBtn.classList.add('btn-outline-primary');
+                wishlistBtn.classList.add('btn-outline-olive');
             } else {
                 wishlistBtn.innerHTML = '<i class="bi bi-heart-fill text-danger"></i> Remove from Wishlist';
-                wishlistBtn.classList.remove('btn-outline-primary');
+                wishlistBtn.classList.remove('btn-outline-olive');
                 wishlistBtn.classList.add('btn-outline-danger');
             }
             showToast(data.message);

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -32,25 +33,70 @@ def add_to_cart(request, product_id):
 
 @login_required
 def remove_from_cart(request, item_id):
-    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
-    cart_item.delete()
-    messages.success(request, 'Item removed from cart.')
-    return redirect('cart:cart_detail')
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+            cart_item.delete()
+            cart = Cart.objects.get(user=request.user)
+            return JsonResponse({
+                'success': True,
+                'message': 'Item removed from cart.',
+                'cart_count': cart.item_count(),
+                'cart_total': float(cart.total_price)
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    else:
+        cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+        cart_item.delete()
+        messages.success(request, 'Item removed from cart.')
+        return redirect('cart:cart_detail')
 
 @login_required
 def update_cart(request, item_id):
     cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
     quantity = int(request.POST.get('quantity', 1))
     
-    if quantity > 0 and quantity <= cart_item.product.stock:
-        cart_item.quantity = quantity
-        cart_item.save()
-    elif quantity > cart_item.product.stock:
-        messages.warning(request, f'Only {cart_item.product.stock} items available.')
-        cart_item.quantity = cart_item.product.stock
-        cart_item.save()
-    
-    return redirect('cart:cart_detail')
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            if quantity > 0 and quantity <= cart_item.product.stock:
+                cart_item.quantity = quantity
+                cart_item.save()
+            elif quantity > cart_item.product.stock:
+                cart_item.quantity = cart_item.product.stock
+                cart_item.save()
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Only {cart_item.product.stock} items available.',
+                    'updated_quantity': cart_item.quantity,
+                    'item_total': float(cart_item.total_price),
+                    'cart_total': float(cart_item.cart.total_price)
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Cart updated successfully.',
+                'item_total': float(cart_item.total_price),
+                'cart_total': float(cart_item.cart.total_price)
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    else:
+        if quantity > 0 and quantity <= cart_item.product.stock:
+            cart_item.quantity = quantity
+            cart_item.save()
+        elif quantity > cart_item.product.stock:
+            messages.warning(request, f'Only {cart_item.product.stock} items available.')
+            cart_item.quantity = cart_item.product.stock
+            cart_item.save()
+        
+        return redirect('cart:cart_detail')
 
 from rest_framework.decorators import api_view
 @api_view(['GET'])

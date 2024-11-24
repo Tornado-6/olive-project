@@ -10,6 +10,7 @@ class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    @property
     def total_price(self):
         """Calculate total price of all cart items"""
         return sum(item.total_price for item in self.items.all())

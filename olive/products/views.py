@@ -133,3 +133,11 @@ def manage_review(request, review_id):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def about(request):
+    """About page view."""
+    return render(request, 'products/about.html')
+
+def contact(request):
+    """Contact page view."""
+    return render(request, 'products/contact.html')

@@ -1,0 +1,71 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Contact Us - Olive World{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <h1 class="mb-4">Contact Us</h1>
+            
+            <div class="mb-5">
+                <h2 class="h4 mb-3">Get in Touch</h2>
+                <p>We'd love to hear from you! Whether you have a question about our products, need assistance with an order, or want to discuss business opportunities, our team is here to help.</p>
+            </div>
+
+            <div class="mb-5">
+                <h2 class="h4 mb-3">Contact Information</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <strong>Address:</strong><br>
+                        Olive World<br>
+                        Plot No. 7, Sector 18,<br>
+                        Gurgaon - 122015,<br>
+                        Haryana, India
+                    </li>
+                    <li class="mb-3">
+                        <strong>Email:</strong><br>
+                        <a href="mailto:info@olveworld.co.in">info@olveworld.co.in</a>
+                    </li>
+                    <li class="mb-3">
+                        <strong>Phone:</strong><br>
+                        <a href="tel:+919999999999">+91 99999 99999</a>
+                    </li>
+                    <li class="mb-3">
+                        <strong>Business Hours:</strong><br>
+                        Monday - Saturday: 9:00 AM - 6:00 PM (IST)<br>
+                        Sunday: Closed
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 mb-4">Send us a Message</h2>
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
