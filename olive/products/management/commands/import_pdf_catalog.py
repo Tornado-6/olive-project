@@ -14,19 +14,24 @@ import io
 
 logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
-    help = 'Import products from a PDF catalog'
+    help = "Import products from a PDF catalog"
 
     def add_arguments(self, parser):
-        parser.add_argument('pdf_path', type=str, help='Path to the PDF catalog')
-        parser.add_argument('--category', type=str, help='Category name for imported products')
-        parser.add_argument('--default-stock', type=int, default=0, help='Default stock quantity')
+        parser.add_argument("pdf_path", type=str, help="Path to the PDF catalog")
+        parser.add_argument(
+            "--category", type=str, help="Category name for imported products"
+        )
+        parser.add_argument(
+            "--default-stock", type=int, default=0, help="Default stock quantity"
+        )
 
     def extract_tables(self, pdf_path):
         """Extract tables from PDF using tabula-py"""
         try:
             # Extract all tables from the PDF
-            tables = tabula.read_pdf(pdf_path, pages='all', multiple_tables=True)
+            tables = tabula.read_pdf(pdf_path, pages="all", multiple_tables=True)
             return tables
         except Exception as e:
             logger.error(f"Error extracting tables: {str(e)}")
@@ -46,32 +51,32 @@ class Command(BaseCommand):
         """Process a single row from the extracted table"""
         try:
             # Adjust these indices based on your PDF structure
-            name = row.get('Product Name', row.get('Name', ''))
-            price = row.get('Price', '0')
-            description = row.get('Description', '')
-            
+            name = row.get("Product Name", row.get("Name", ""))
+            price = row.get("Price", "0")
+            description = row.get("Description", "")
+
             # Clean and validate data
             if not name:
                 return None
-            
+
             # Convert price to Decimal
             try:
-                price = Decimal(str(price).replace('$', '').strip())
+                price = Decimal(str(price).replace("$", "").strip())
             except:
-                price = Decimal('0')
-            
+                price = Decimal("0")
+
             # Create or update product
             product, created = Product.objects.get_or_create(
                 name=name,
                 defaults={
-                    'slug': slugify(name),
-                    'description': description,
-                    'price': price,
-                    'category': category,
-                    'stock': self.default_stock
-                }
+                    "slug": slugify(name),
+                    "description": description,
+                    "price": price,
+                    "category": category,
+                    "stock": self.default_stock,
+                },
             )
-            
+
             return product
         except Exception as e:
             logger.error(f"Error processing row: {str(e)}")
@@ -82,7 +87,7 @@ class Command(BaseCommand):
         try:
             # Convert PIL Image to bytes
             img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format='PNG')
+            image.save(img_byte_arr, format="PNG")
             img_byte_arr = img_byte_arr.getvalue()
 
             # Save image to product
@@ -92,9 +97,9 @@ class Command(BaseCommand):
             logger.error(f"Error saving image: {str(e)}")
 
     def handle(self, *args, **options):
-        pdf_path = options['pdf_path']
-        category_name = options['category']
-        self.default_stock = options['default_stock']
+        pdf_path = options["pdf_path"]
+        category_name = options["category"]
+        self.default_stock = options["default_stock"]
 
         if not os.path.exists(pdf_path):
             self.stderr.write(f"PDF file not found: {pdf_path}")
@@ -102,8 +107,7 @@ class Command(BaseCommand):
 
         # Get or create category
         category, _ = Category.objects.get_or_create(
-            name=category_name,
-            defaults={'slug': slugify(category_name)}
+            name=category_name, defaults={"slug": slugify(category_name)}
         )
 
         # Extract tables
@@ -116,7 +120,7 @@ class Command(BaseCommand):
         products_created = 0
         for table in tables:
             # Convert table to dict format
-            table_dict = table.to_dict('records')
+            table_dict = table.to_dict("records")
             for row in table_dict:
                 product = self.process_table_row(row, category)
                 if product:
@@ -125,7 +129,7 @@ class Command(BaseCommand):
         # Extract and process images
         images = self.extract_images(pdf_path)
         if images and products_created > 0:
-            products = Product.objects.filter(category=category).order_by('created_at')
+            products = Product.objects.filter(category=category).order_by("created_at")
             for product, image in zip(products, images):
                 self.save_product_image(product, image)
 

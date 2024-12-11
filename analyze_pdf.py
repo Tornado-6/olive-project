@@ -1,11 +1,12 @@
 import pdfplumber
 import sys
 
+
 def analyze_pdf(pdf_path):
     print(f"Analyzing PDF: {pdf_path}")
     with pdfplumber.open(pdf_path) as pdf:
         print(f"Number of pages: {len(pdf.pages)}")
-        
+
         for i, page in enumerate(pdf.pages):
             print(f"\nPage {i+1}:")
             # Extract text
@@ -13,7 +14,7 @@ def analyze_pdf(pdf_path):
             if text:
                 print("Text content:")
                 print(text[:200] + "..." if len(text) > 200 else text)
-            
+
             # Extract tables
             tables = page.extract_tables()
             if tables:
@@ -24,6 +25,7 @@ def analyze_pdf(pdf_path):
                         print(row)
             else:
                 print("No tables found on this page")
+
 
 if __name__ == "__main__":
     pdf_path = "product_catalogs/sample_catalog.pdf"

@@ -1,19 +1,19 @@
 import os
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'olive.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "olive.settings")
 django.setup()
 
 from users.models import CustomUser
 
 # Create superuser if it doesn't exist
-if not CustomUser.objects.filter(username='admin').exists():
+if not CustomUser.objects.filter(username="admin").exists():
     CustomUser.objects.create_superuser(
-        username='admin',
-        email='admin@example.com',
-        password='admin123',
-        first_name='Admin',
-        last_name='User'
+        username="admin",
+        email="admin@example.com",
+        password="admin123",
+        first_name="Admin",
+        last_name="User",
     )
     print("Superuser created successfully!")
 else:
